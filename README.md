@@ -1,10 +1,10 @@
-# 🚀 StudyTrack 🚀
+# StudyTrack
 
 **„StudyTrack“** ist eine Webanwendung zur Verwaltung von Lernzielen, Aufgaben und Fortschritten mit sozialer Vergleichsfunktion.
 
 ---
 
-## 🎯 Projektziele (Features) 🎯
+## Projektziele (Features)
 
 * **Lernziel-Management:** Erstellen, Bearbeiten und Löschen von Lernzielen und Aufgaben.
 * **Fortschrittsanalyse:** Visuelle Verfolgung des Lernfortschritts in Echtzeit.
@@ -16,7 +16,7 @@
 
 ---
 
-## 🛠 Technischer Stack 🛠
+## Technischer Stack
 
 ### Frontend
 * **Framework:** [Vue.js 3](https://vuejs.org/) (Composition API)
@@ -32,7 +32,7 @@
 
 ---
 
-## 🚀 Installation & Start 🚀
+## Installation & Start
 
 ### Voraussetzungen
 * Node.js (v18 oder höher)
