@@ -1,48 +1,5 @@
 <script setup lang="ts">
-import { 
-  LayoutDashboard, 
-  Target, 
-  Clock, 
-  Users, 
-  Sparkles, 
-  CheckCircle2, 
-  TrendingUp 
-} from 'lucide-vue-next'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-
-import type { Goal, Stat } from '@/types'
-
-const stats: Stat[] = [
-  { label: 'Aktive Lernziele', value: 3, icon: Target, color: 'text-blue-500' },
-  { label: 'Erledigte Aufgaben', value: '4/11', icon: CheckCircle2, color: 'text-green-500' },
-  { label: 'Gesamte Lernzeit', value: '12h', icon: Clock, color: 'text-purple-500' },
-  { label: 'Durchschnittlicher Fortschritt', value: '45%', icon: TrendingUp, color: 'text-orange-500' }
-]
-
-const goals: Goal[] = [
-  {
-    id: 1,
-    title: 'Java Grundlagen meistern',
-    description: 'OOP, Datenstrukturen und grundlegende Algorithmen verstehen',
-    progress: 65,
-    tasksCompleted: 2,
-    totalTasks: 4,
-    dueDate: '15.3.2026'
-  },
-  {
-    id: 2,
-    title: 'Datenbanken & SQL',
-    description: 'Relationale Datenbanken und SQL-Abfragen beherrschen',
-    progress: 40,
-    tasksCompleted: 1,
-    totalTasks: 3,
-    dueDate: '28.2.2026'
-  }
-]
 </script>
 
 <template>
@@ -97,15 +54,14 @@ const goals: Goal[] = [
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card v-for="(stat, index) in stats" :key="index" class="hover:shadow-md transition-shadow">
+        <Card class="hover:shadow-md transition-shadow">
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle class="text-sm font-medium text-slate-500">
-              {{ stat.label }}
             </CardTitle>
-            <component :is="stat.icon" :class="`w-8 h-8 p-1.5 rounded-md bg-opacity-10 ${stat.color.replace('text-', 'bg-')} ${stat.color}`" />
+            <component class="`w-8 h-8 p-1.5 rounded-md bg-opacity-10 ${stat.color.replace('text-', 'bg-')} ${stat.color}`" />
           </CardHeader>
           <CardContent>
-            <div class="text-3xl font-bold text-slate-800">{{ stat.value }}</div>
+            <div class="text-3xl font-bold text-slate-800"></div>
           </CardContent>
         </Card>
       </div>
@@ -114,25 +70,25 @@ const goals: Goal[] = [
         <h3 class="text-lg font-bold text-slate-800">Deine aktuellen Lernziele</h3>
         
         <div class="flex flex-col gap-4">
-          <Card v-for="goal in goals" :key="goal.id" class="group hover:border-blue-300 transition-colors">
+          <Card class="group hover:border-blue-300 transition-colors">
             <CardContent class="p-6">
               <div class="flex justify-between items-start mb-2">
                 <div>
-                  <h4 class="font-bold text-slate-800 text-lg">{{ goal.title }}</h4>
-                  <p class="text-slate-500 text-sm mt-1">{{ goal.description }}</p>
+                  <h4 class="font-bold text-slate-800 text-lg"></h4>
+                  <p class="text-slate-500 text-sm mt-1"></p>
                 </div>
                 <span class="font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full text-sm">
-                  {{ goal.progress }}%
+                  %
                 </span>
               </div>
               
               <div class="mt-4 mb-2">
-                <Progress :model-value="goal.progress" class="h-2.5 bg-slate-100" />
+                <Progress class="h-2.5 bg-slate-100"> </Progress>
               </div>
 
               <div class="flex justify-between items-center text-xs text-slate-400 font-medium mt-3">
-                <span>{{ goal.tasksCompleted }} von {{ goal.totalTasks }} Aufgaben erledigt</span>
-                <span>Ziel: {{ goal.dueDate }}</span>
+                <span> von Aufgaben erledigt</span>
+                <span>Ziel:</span>
               </div>
             </CardContent>
           </Card>
