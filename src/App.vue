@@ -14,7 +14,7 @@
       </div>
       <Avatar class="bg-blue-100">
         <AvatarImage src="" />
-        <AvatarFallback class="text-blue-700 font-medium">DU</AvatarFallback>
+        <AvatarFallback class="text-blue-700 font-medium"></AvatarFallback>
       </Avatar>
     </header>
 
