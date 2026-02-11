@@ -12,5 +12,5 @@ export interface Stat {
   label: string
   value: string | number
   icon: any
-  color?: string
+  color: string
 }
