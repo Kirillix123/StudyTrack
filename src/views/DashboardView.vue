@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { 
-  LayoutDashboard, 
   Target, 
   Clock, 
-  Users, 
   Sparkles, 
   CheckCircle2, 
   TrendingUp 
 } from 'lucide-vue-next'
 
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 
@@ -64,26 +61,6 @@ const stats = computed<Stat[]>(() => {
 <template>
   <div class="min-h-screen bg-slate-50 font-sans">
     <main class="max-w-7xl mx-auto p-6 space-y-8">
-      
-      <nav class="bg-white p-2 rounded-xl shadow-sm border flex items-center gap-2 overflow-x-auto">
-        <Button variant="default" class="bg-blue-600 hover:bg-blue-700 gap-2">
-          <LayoutDashboard class="w-4 h-4" />
-          Dashboard
-        </Button>
-        <Button variant="ghost" class="text-slate-600 hover:text-blue-600 gap-2">
-          <Target class="w-4 h-4" />
-          Lernziele
-        </Button>
-        <Button variant="ghost" class="text-slate-600 hover:text-blue-600 gap-2">
-          <Clock class="w-4 h-4" />
-          Lernzeiten
-        </Button>
-        <Button variant="ghost" class="text-slate-600 hover:text-blue-600 gap-2">
-          <Users class="w-4 h-4" />
-          Freunde
-        </Button>
-      </nav>
-
       <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
         <div class="relative z-10">
           <div class="flex items-start gap-4">

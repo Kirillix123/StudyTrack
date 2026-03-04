@@ -35,10 +35,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
           </Button>
         </RouterLink>
 
-        <Button variant="ghost" class="text-slate-600 hover:text-blue-600 gap-2">
-          <Clock class="w-4 h-4" />
-          Lernzeiten
-        </Button>
+        <RouterLink to="/studytime" v-slot="{ isActive }">
+          <Button :variant="isActive ? 'default' : 'ghost'" :class="[isActive ? 'bg-blue-600' : 'text-slate-600', 'gap-2']">
+            <Clock class="w-4 h-4" />
+            Lernzeiten
+          </Button>
+        </RouterLink>
         <Button variant="ghost" class="text-slate-600 hover:text-blue-600 gap-2">
           <Users class="w-4 h-4" />
           Freunde
