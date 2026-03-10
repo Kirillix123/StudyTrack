@@ -12,29 +12,15 @@ import {
 } from 'lucide-vue-next'
 
 import { Button } from '@/components/ui/button'
-import { Card} from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
+import { useStudyStore } from '@/stores/studyStore'
 
-import type { Friend, Goal, StudySession } from '@/types'
-
-interface Props {
-  friends?: Friend[]
-  goals?: Goal[]
-  studySessions?: StudySession[]
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  friends: () => [],
-  goals: () => [],
-  studySessions: () => []
-})
-
-// Состояние сортировки
+const store = useStudyStore()
 const sortBy = ref<'studyTime' | 'goals' | 'streak'>('studyTime')
 
-// 1. Расчет статистики текущего пользователя (Тебя)
 const currentUserStats = computed(() => {
-  const totalMinutes = props.studySessions.reduce((acc, s) => acc + s.duration, 0)
-  const completedGoals = props.goals.filter(g => g.progress === 100).length
+  const totalMinutes = store.sessions.reduce((acc, s) => acc + s.duration, 0)
+  const completedGoals = store.goals.filter(g => g.progress === 100).length
   
   return {
     id: 'current',
@@ -42,16 +28,15 @@ const currentUserStats = computed(() => {
     avatar: 'DU',
     totalStudyTime: totalMinutes,
     completedGoals: completedGoals,
-    currentStreak: 8, // Можно позже добавить логику расчета стрика
+    currentStreak: 8,
     isCurrentUser: true
   }
 })
 
-// 2. Объединение и сортировка всех пользователей для ранжирования
 const sortedUsers = computed(() => {
   const all = [
     currentUserStats.value,
-    ...props.friends.map(f => ({ ...f, isCurrentUser: false }))
+    ...store.friends.map(f => ({ ...f, isCurrentUser: false }))
   ]
 
   return [...all].sort((a, b) => {
@@ -62,7 +47,6 @@ const sortedUsers = computed(() => {
   })
 })
 
-// Хелперы для UI
 const getRankIcon = (rank: number) => {
   if (rank === 1) return { icon: Trophy, class: 'text-yellow-500' }
   if (rank === 2) return { icon: Medal, class: 'text-slate-400' }
@@ -192,7 +176,7 @@ const getAvatarColor = (index: number) => {
       </div>
     </Card>
 
-    <div v-if="friends.length === 0" class="bg-white rounded-2xl p-12 border-2 border-dashed border-slate-200 text-center">
+    <div v-if="store.friends.length === 0" class="bg-white rounded-2xl p-12 border-2 border-dashed border-slate-200 text-center">
       <Users class="w-12 h-12 text-slate-300 mx-auto mb-4" />
       <h4 class="text-slate-900 font-bold">Lerne nicht alleine!</h4>
       <p class="text-slate-500 text-sm max-w-xs mx-auto mt-2 mb-6">

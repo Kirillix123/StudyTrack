@@ -1,17 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Plus, Trash2, Check, Calendar } from 'lucide-vue-next'
+import { useStudyStore } from '@/stores/studyStore'
 import type { Goal, Task } from '@/types'
 
-const props = defineProps<{
-  goals?: Goal[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'update:goals', goals: Goal[]): void
-}>()
-
-const localGoals = ref<Goal[]>(props.goals || [])
+const store = useStudyStore()
 const isAddingGoal = ref(false)
 
 const newGoal = ref({
@@ -37,72 +30,53 @@ const handleAddGoal = () => {
     createdAt: new Date()
   }
 
-  localGoals.value = [...localGoals.value, goal]
-  emit('update:goals', localGoals.value)
-
+  store.addGoal(goal)
   newGoal.value = { title: '', description: '', targetDate: '', category: '' }
   isAddingGoal.value = false
 }
 
 const handleDeleteGoal = (goalId: string) => {
-  localGoals.value = localGoals.value.filter((g) => g.id !== goalId)
-  emit('update:goals', localGoals.value)
+  store.goals = store.goals.filter((g) => g.id !== goalId)
+}
+
+const updateGoalProgress = (goal: Goal) => {
+  if (goal.tasks.length === 0) {
+    goal.progress = 0
+  } else {
+    const completedCount = goal.tasks.filter((t) => t.completed).length
+    goal.progress = Math.round((completedCount / goal.tasks.length) * 100)
+  }
 }
 
 const handleAddTask = (goalId: string) => {
-  const taskText = newTaskText.value[goalId]?.trim()
-  if (!taskText) return
+  const text = newTaskText.value[goalId]?.trim()
+  if (!text) return
 
-  localGoals.value = localGoals.value.map((goal) => {
-    if (goal.id === goalId) {
-      const newTask: Task = {
-        id: `${goalId}-${Date.now()}`,
-        title: taskText,
-        completed: false,
-        goalId: goalId,
-        createdAt: new Date()
-      }
-      return { ...goal, tasks: [...goal.tasks, newTask] }
+  const goal = store.goals.find(g => g.id === goalId)
+  if (goal) {
+    const newTask: Task = {
+      id: `${goalId}-${Date.now()}`,
+      title: text,
+      completed: false,
+      goalId: goalId,
+      createdAt: new Date()
     }
-    return goal
-  })
-
-  emit('update:goals', localGoals.value)
-  newTaskText.value = { ...newTaskText.value, [goalId]: '' }
+    goal.tasks.push(newTask)
+    updateGoalProgress(goal)
+    newTaskText.value[goalId] = ''
+  }
 }
 
 const handleToggleTask = (goalId: string, taskId: string) => {
-  localGoals.value = localGoals.value.map((goal) => {
-    if (goal.id === goalId) {
-      const updatedTasks = goal.tasks.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
-      const completedCount = updatedTasks.filter((t) => t.completed).length
-      const progress = updatedTasks.length > 0
-        ? Math.round((completedCount / updatedTasks.length) * 100)
-        : 0
-      return { ...goal, tasks: updatedTasks, progress }
-    }
-    return goal
-  })
-
-  emit('update:goals', localGoals.value)
+  store.toggleTask(goalId, taskId)
 }
 
 const handleDeleteTask = (goalId: string, taskId: string) => {
-  localGoals.value = localGoals.value.map((goal) => {
-    if (goal.id === goalId) {
-      const updatedTasks = goal.tasks.filter((task) => task.id !== taskId)
-      const completedCount = updatedTasks.filter((t) => t.completed).length
-      const progress = updatedTasks.length > 0
-        ? Math.round((completedCount / updatedTasks.length) * 100)
-        : 0
-      return { ...goal, tasks: updatedTasks, progress }
-    }
-    return goal
-  })
-
-  emit('update:goals', localGoals.value)
+  const goal = store.goals.find(g => g.id === goalId)
+  if (goal) {
+    goal.tasks = goal.tasks.filter(t => t.id !== taskId)
+    updateGoalProgress(goal)
+  }
 }
 
 const getCategoryColor = (category: string) => {
@@ -136,9 +110,7 @@ const getCategoryColor = (category: string) => {
       <h3 class="font-semibold mb-4">Neues Lernziel erstellen</h3>
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Titel *
-          </label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Titel *</label>
           <input
             type="text"
             v-model="newGoal.title"
@@ -147,9 +119,7 @@ const getCategoryColor = (category: string) => {
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Beschreibung
-          </label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Beschreibung</label>
           <textarea
             v-model="newGoal.description"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -159,9 +129,7 @@ const getCategoryColor = (category: string) => {
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Kategorie
-            </label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
             <select
               v-model="newGoal.category"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -174,9 +142,7 @@ const getCategoryColor = (category: string) => {
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Zieldatum
-            </label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Zieldatum</label>
             <input
               type="date"
               v-model="newGoal.targetDate"
@@ -201,7 +167,7 @@ const getCategoryColor = (category: string) => {
       </div>
     </div>
 
-    <div v-if="localGoals.length === 0 && !isAddingGoal" class="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
+    <div v-if="store.goals.length === 0 && !isAddingGoal" class="bg-white rounded-xl p-12 shadow-sm border border-gray-200 text-center">
       <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <Plus class="w-8 h-8 text-gray-400" />
       </div>
@@ -215,7 +181,7 @@ const getCategoryColor = (category: string) => {
     </div>
 
     <div v-else class="space-y-4">
-      <div v-for="goal in localGoals" :key="goal.id" class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+      <div v-for="goal in store.goals" :key="goal.id" class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
         <div class="flex items-start justify-between mb-4">
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-2">

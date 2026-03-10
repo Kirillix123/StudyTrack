@@ -5,31 +5,17 @@ import {
   CheckCircle, 
   Clock, 
   TrendingUp, 
-  Sparkles 
+  Sparkles,
+  Calendar
 } from 'lucide-vue-next'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import type { Goal, StudySession, MotivationalQuote } from '@/types'
+import { useStudyStore } from '@/stores/studyStore'
+import { motivationalQuotes } from '@/data/mockData'
+import type { MotivationalQuote } from '@/types'
 
-// import { motivationalQuotes } from '@/data/mockData'
-
-interface Props {
-  goals?: Goal[]
-  studySessions?: StudySession[]
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  goals: () => [],
-  studySessions: () => []
-})
-
-const motivationalQuotes: MotivationalQuote[] = [
-  { id: '1', text: "Bildung ist die mächtigste Waffe, die du verwenden kannst, um die Welt zu verändern.", author: "Nelson Mandela" },
-  { id: '2', text: "Der Weg ist das Ziel.", author: "Konfuzius" },
-  { id: '3', text: "Es ist immer zu früh, um aufzugeben.", author: "Norman Vincent Peale" }
-]
-
+const store = useStudyStore()
 const quote = ref<MotivationalQuote | null>(null)
 
 onMounted(() => {
@@ -37,24 +23,24 @@ onMounted(() => {
   quote.value = motivationalQuotes[randomIndex] ?? null
 })
 
-const totalGoals = computed(() => props.goals.length)
+const totalGoals = computed(() => store.goals.length)
 
 const taskStats = computed(() => {
-  const total = props.goals.reduce((acc, goal) => acc + goal.tasks.length, 0)
-  const completed = props.goals.reduce((acc, goal) => 
+  const total = store.goals.reduce((acc, goal) => acc + goal.tasks.length, 0)
+  const completed = store.goals.reduce((acc, goal) => 
     acc + goal.tasks.filter(t => t.completed).length, 0)
   return { total, completed }
 })
 
 const totalStudyTimeHours = computed(() => {
-  const totalMins = props.studySessions.reduce((acc, s) => acc + s.duration, 0)
+  const totalMins = store.sessions.reduce((acc, s) => acc + s.duration, 0)
   return Math.round(totalMins / 60)
 })
 
 const averageProgress = computed(() => {
-  if (props.goals.length === 0) return 0
-  const totalProgress = props.goals.reduce((acc, goal) => acc + goal.progress, 0)
-  return Math.round(totalProgress / props.goals.length)
+  if (store.goals.length === 0) return 0
+  const totalProgress = store.goals.reduce((acc, goal) => acc + goal.progress, 0)
+  return Math.round(totalProgress / store.goals.length)
 })
 
 const statsCards = computed(() => [
@@ -132,13 +118,13 @@ const formatDate = (dateStr: string) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div v-if="goals.length === 0" class="text-center py-12 text-slate-400 border-2 border-dashed rounded-xl">
+        <div v-if="store.goals.length === 0" class="text-center py-12 text-slate-400 border-2 border-dashed rounded-xl">
           Noch keine Lernziele vorhanden. Erstelle dein erstes Lernziel im Tab "Lernziele"!
         </div>
         
         <div v-else class="space-y-4">
           <div 
-            v-for="goal in goals" 
+            v-for="goal in store.goals" 
             :key="goal.id" 
             class="group border border-slate-200 rounded-xl p-5 hover:border-blue-300 transition-colors bg-white shadow-sm"
           >

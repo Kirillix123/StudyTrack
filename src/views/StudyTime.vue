@@ -13,20 +13,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useStudyStore } from '@/stores/studyStore'
+import type { StudySession } from '@/types'
 
-import type { Goal, StudySession } from '@/types'
-
-interface Props {
-  sessions?: StudySession[]
-  goals?: Goal[]
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  sessions: () => [],
-  goals: () => []
-})
-
-const emit = defineEmits(['update:sessions'])
+const store = useStudyStore()
 
 const isAddingSession = ref(false)
 const newSession = ref({
@@ -45,8 +35,7 @@ const handleAddSession = () => {
     goalId: newSession.value.goalId || undefined,
   }
 
-  const updatedSessions = [...props.sessions, session]
-  emit('update:sessions', updatedSessions)
+  store.addSession(session)
   
   newSession.value = {
     date: new Date().toISOString().split('T')[0],
@@ -56,21 +45,20 @@ const handleAddSession = () => {
   isAddingSession.value = false
 }
 
-// ВАЖНО: Все расчеты теперь используют s.duration (number из StudySession)
 const totalMinutes = computed(() => 
-  props.sessions.reduce((acc, s) => acc + s.duration, 0)
+  store.sessions.reduce((acc, s) => acc + s.duration, 0)
 )
 
 const weeklyMinutes = computed(() => {
   const weekAgo = new Date()
   weekAgo.setDate(weekAgo.getDate() - 7)
-  return props.sessions
+  return store.sessions
     .filter(s => new Date(s.date) >= weekAgo)
     .reduce((acc, s) => acc + s.duration, 0)
 })
 
 const averagePerDay = computed(() => 
-  props.sessions.length > 0 ? Math.round(totalMinutes.value / props.sessions.length) : 0
+  store.sessions.length > 0 ? Math.round(totalMinutes.value / store.sessions.length) : 0
 )
 
 const chartData7Days = computed(() => {
@@ -79,7 +67,7 @@ const chartData7Days = computed(() => {
     d.setDate(d.getDate() - (6 - i))
     const dateStr = d.toISOString().split('T')[0]
     const dayName = d.toLocaleDateString('de-DE', { weekday: 'short' })
-    const mins = props.sessions
+    const mins = store.sessions
       .filter(s => s.date === dateStr)
       .reduce((acc, s) => acc + s.duration, 0)
     return { day: dayName, hours: parseFloat((mins / 60).toFixed(1)) }
@@ -87,7 +75,7 @@ const chartData7Days = computed(() => {
 })
 
 const sortedSessions = computed(() => {
-  return [...props.sessions].sort((a, b) => 
+  return [...store.sessions].sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
   ).slice(0, 10)
 })
@@ -131,7 +119,7 @@ const sortedSessions = computed(() => {
               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:ring-2 focus:ring-blue-500 outline-none"
             >
               <option value="">Kein spezifisches Ziel</option>
-              <option v-for="goal in goals" :key="goal.id" :value="goal.id">
+              <option v-for="goal in store.goals" :key="goal.id" :value="goal.id">
                 {{ goal.title }}
               </option>
             </select>
@@ -192,12 +180,12 @@ const sortedSessions = computed(() => {
         <CardTitle class="text-lg">Lernzeit der letzten 7 Tage</CardTitle>
       </CardHeader>
       <CardContent>
-        <div v-if="sessions.length === 0" class="text-center py-12 text-slate-400 border-2 border-dashed rounded-lg">
+        <div v-if="store.sessions.length === 0" class="text-center py-12 text-slate-400 border-2 border-dashed rounded-lg">
           Noch keine Lernzeiten erfasst.
         </div>
         <div v-else class="h-[300px] flex items-end justify-around gap-2 pt-4">
            <div v-for="day in chartData7Days" :key="day.day" class="flex flex-col items-center flex-1 gap-2 group">
-              <div 
+             <div 
                 class="w-full bg-blue-500 rounded-t-md transition-all group-hover:bg-blue-600 relative"
                 :style="{ height: `${Math.min((day.hours / 8) * 100, 100)}%`, minHeight: '4px' }"
               >
@@ -211,7 +199,7 @@ const sortedSessions = computed(() => {
       </CardContent>
     </Card>
 
-    <Card v-if="sessions.length > 0">
+    <Card v-if="store.sessions.length > 0">
       <CardHeader>
         <CardTitle class="text-lg">Letzte Lernsitzungen</CardTitle>
       </CardHeader>
@@ -226,7 +214,7 @@ const sortedSessions = computed(() => {
             <div>
               <p class="font-bold text-slate-800">{{ session.duration }} Minuten</p>
               <p v-if="session.goalId" class="text-xs text-blue-600 font-medium">
-                {{ goals.find(g => g.id === session.goalId)?.title || 'Unbekanntes Ziel' }}
+                {{ store.goals.find(g => g.id === session.goalId)?.title || 'Unbekanntes Ziel' }}
               </p>
             </div>
           </div>
